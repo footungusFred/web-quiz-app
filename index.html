@@ -3,140 +3,168 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Quiz App</title>
+<title>Quiz</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:linear-gradient(135deg,#667eea,#764ba2);min-height:100vh;font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;padding:1rem}
-.card{background:#fff;border-radius:20px;padding:2.5rem;max-width:650px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-h1{text-align:center;color:#6c63ff;font-size:2rem;margin-bottom:.5rem}
-.subtitle{text-align:center;color:#888;margin-bottom:2rem}
-.progress-bar{background:#eee;border-radius:10px;height:8px;margin-bottom:1.5rem;overflow:hidden}
-.progress-fill{background:linear-gradient(90deg,#6c63ff,#764ba2);height:100%;border-radius:10px;transition:.5s}
-.meta{display:flex;justify-content:space-between;color:#666;font-size:.9rem;margin-bottom:1.5rem}
-.timer{color:#ff6b6b;font-weight:700}
-.question{font-size:1.3rem;font-weight:600;color:#333;margin-bottom:1.5rem;line-height:1.5}
-.options{display:flex;flex-direction:column;gap:.8rem;margin-bottom:1.5rem}
-.option{background:#f8f9ff;border:2px solid #e0e0e0;border-radius:12px;padding:1rem 1.2rem;cursor:pointer;transition:.3s;text-align:left;font-size:1rem;color:#333}
-.option:hover{border-color:#6c63ff;background:#f0eeff}
-.option.correct{background:#d4edda;border-color:#28a745;color:#155724}
-.option.wrong{background:#f8d7da;border-color:#dc3545;color:#721c24}
-.option:disabled{cursor:default}
-.next-btn{background:linear-gradient(135deg,#6c63ff,#764ba2);color:#fff;border:none;padding:1rem 2.5rem;border-radius:30px;font-size:1rem;cursor:pointer;width:100%;transition:.3s;display:none}
-.next-btn:hover{opacity:.9;transform:translateY(-2px)}
-.result{text-align:center;display:none}
-.result .score{font-size:4rem;font-weight:800;color:#6c63ff;margin:1rem 0}
-.result p{color:#666;font-size:1.1rem;margin-bottom:1.5rem}
-.restart-btn{background:linear-gradient(135deg,#6c63ff,#764ba2);color:#fff;border:none;padding:1rem 2.5rem;border-radius:30px;font-size:1rem;cursor:pointer;transition:.3s}
-#startScreen{text-align:center}
-#startScreen p{color:#666;margin-bottom:2rem;line-height:1.7}
-.start-btn{background:linear-gradient(135deg,#6c63ff,#764ba2);color:#fff;border:none;padding:1.2rem 3rem;border-radius:30px;font-size:1.1rem;cursor:pointer;transition:.3s}
-.start-btn:hover{transform:translateY(-3px);box-shadow:0 10px 25px rgba(108,99,255,.4)}
-#quizScreen{display:none}
+:root {
+  --red: #c0392b;
+  --red-dark: #96281b;
+  --black: #090909;
+  --dark: #0f0f0f;
+  --card: #141414;
+  --border: #1e1e1e;
+  --text: #d0d0d0;
+  --muted: #555;
+  --white: #eee;
+}
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--black); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:1.5rem; }
+.wrap { width:100%; max-width:580px; }
+
+/* START */
+.start { text-align:center; }
+.start-label { font-size:0.7rem; letter-spacing:0.12em; text-transform:uppercase; color:var(--red); margin-bottom:1rem; }
+.start h1 { font-size:2.8rem; font-weight:900; color:var(--white); letter-spacing:-0.03em; margin-bottom:0.75rem; }
+.start p { color:var(--muted); margin-bottom:2.5rem; font-size:0.9rem; line-height:1.7; }
+.start-btn { background:var(--red); color:#fff; border:none; padding:0.9rem 2.5rem; border-radius:4px; font-size:0.95rem; font-weight:700; cursor:pointer; font-family:inherit; transition:background 0.15s; }
+.start-btn:hover { background:var(--red-dark); }
+
+/* QUIZ */
+.quiz { display:none; }
+.quiz-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; }
+.q-count { font-size:0.78rem; color:var(--muted); letter-spacing:0.04em; }
+.timer { font-size:0.78rem; color:var(--text); font-variant-numeric:tabular-nums; }
+.timer.urgent { color:var(--red); }
+.progress { height:2px; background:var(--border); border-radius:1px; margin-bottom:2rem; }
+.progress-fill { height:100%; background:var(--red); border-radius:1px; transition:width 0.4s ease; }
+
+.question { font-size:1.2rem; font-weight:600; color:var(--white); line-height:1.5; margin-bottom:2rem; min-height:60px; }
+.options { display:flex; flex-direction:column; gap:0.6rem; margin-bottom:2rem; }
+.option {
+  background:var(--card); border:1px solid var(--border);
+  color:var(--text); padding:0.9rem 1.1rem;
+  border-radius:4px; font-size:0.9rem; font-family:inherit;
+  cursor:pointer; text-align:left; transition:border-color 0.15s,background 0.15s;
+}
+.option:hover:not(:disabled) { border-color:#333; background:#1a1a1a; color:var(--white); }
+.option.correct { border-color:#27ae60; background:rgba(39,174,96,0.08); color:#2ecc71; }
+.option.wrong { border-color:var(--red); background:var(--red-dim,rgba(192,57,43,0.08)); color:#e74c3c; }
+.option:disabled { cursor:default; }
+.next-btn { background:var(--red); color:#fff; border:none; padding:0.8rem 1.75rem; border-radius:4px; font-size:0.88rem; font-weight:700; cursor:pointer; font-family:inherit; display:none; transition:background 0.15s; }
+.next-btn:hover { background:var(--red-dark); }
+
+/* RESULT */
+.result { display:none; text-align:center; padding:2rem 0; }
+.result-score { font-size:5rem; font-weight:900; color:var(--red); line-height:1; letter-spacing:-0.04em; margin-bottom:0.5rem; }
+.result-label { font-size:0.9rem; color:var(--muted); margin-bottom:2rem; }
+.result-msg { font-size:1.1rem; color:var(--white); margin-bottom:2rem; }
+.result-again { background:var(--red); color:#fff; border:none; padding:0.8rem 2rem; border-radius:4px; font-size:0.88rem; font-weight:700; cursor:pointer; font-family:inherit; transition:background 0.15s; }
+.result-again:hover { background:var(--red-dark); }
 </style>
 </head>
 <body>
-<div class="card">
-  <h1>🧠 Quiz App</h1>
-  <p class="subtitle">Test your knowledge!</p>
-  <div id="startScreen">
-    <p>10 questions across different topics.<br/>You have <strong>15 seconds</strong> per question.<br/>Good luck! 🍀</p>
-    <button class="start-btn" onclick="startQuiz()">Start Quiz</button>
+<div class="wrap">
+  <div class="start" id="startScreen">
+    <div class="start-label">Knowledge test</div>
+    <h1>Quiz.</h1>
+    <p>10 questions. 15 seconds each.<br/>No second chances once you choose.</p>
+    <button class="start-btn" onclick="startQuiz()">Start</button>
   </div>
-  <div id="quizScreen">
-    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
-    <div class="meta"><span id="qNum">Question 1/10</span><span class="timer" id="timer">⏱ 15s</span></div>
+
+  <div class="quiz" id="quizScreen">
+    <div class="quiz-meta">
+      <span class="q-count" id="qCount">1 / 10</span>
+      <span class="timer" id="timer">15s</span>
+    </div>
+    <div class="progress"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
     <div class="question" id="question"></div>
     <div class="options" id="options"></div>
-    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Next →</button>
-    <div class="result" id="result">
-      <p>Quiz Complete! 🎉</p>
-      <div class="score" id="scoreDisplay"></div>
-      <p id="scoreMsg"></p>
-      <button class="restart-btn" onclick="startQuiz()">Play Again</button>
-    </div>
+    <button class="next-btn" id="nextBtn" onclick="nextQ()">Next</button>
+  </div>
+
+  <div class="result" id="resultScreen">
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-label">out of 10</div>
+    <div class="result-msg" id="resultMsg"></div>
+    <button class="result-again" onclick="startQuiz()">Try again</button>
   </div>
 </div>
+
 <script>
-const questions=[
-  {q:"What is the capital of France?",opts:["Berlin","Madrid","Paris","Rome"],ans:2},
-  {q:"What does HTML stand for?",opts:["Hyper Text Markup Language","High Tech Modern Language","Home Tool Markup Language","Hyperlink Text Mode Language"],ans:0},
-  {q:"Which planet is largest in our solar system?",opts:["Saturn","Neptune","Jupiter","Uranus"],ans:2},
-  {q:"Who painted the Mona Lisa?",opts:["Picasso","Da Vinci","Van Gogh","Michelangelo"],ans:1},
-  {q:"What is 15% of 200?",opts:["25","30","35","40"],ans:1},
-  {q:"What language does the web primarily use for styling?",opts:["HTML","JavaScript","Python","CSS"],ans:3},
-  {q:"Which ocean is the largest?",opts:["Atlantic","Indian","Arctic","Pacific"],ans:3},
-  {q:"What year did the first iPhone launch?",opts:["2005","2006","2007","2008"],ans:2},
-  {q:"What does CPU stand for?",opts:["Central Processing Unit","Computer Personal Unit","Core Processing Unit","Central Program Utility"],ans:0},
-  {q:"How many bits are in a byte?",opts:["4","8","16","32"],ans:1},
+const Qs = [
+  {q:"What is the capital of France?",o:["Berlin","Madrid","Paris","Rome"],a:2},
+  {q:"What does HTML stand for?",o:["Hyper Text Markup Language","High Tech Modern Language","Home Tool Markup Language","Hyperlink Text Mode Language"],a:0},
+  {q:"Which planet is the largest in our solar system?",o:["Saturn","Neptune","Jupiter","Uranus"],a:2},
+  {q:"Who painted the Mona Lisa?",o:["Picasso","Da Vinci","Van Gogh","Michelangelo"],a:1},
+  {q:"What is 15% of 200?",o:["25","30","35","40"],a:1},
+  {q:"Which language primarily handles web page styling?",o:["HTML","JavaScript","Python","CSS"],a:3},
+  {q:"Which is the largest ocean?",o:["Atlantic","Indian","Arctic","Pacific"],a:3},
+  {q:"What year did the first iPhone launch?",o:["2005","2006","2007","2008"],a:2},
+  {q:"What does CPU stand for?",o:["Central Processing Unit","Computer Personal Unit","Core Processing Unit","Central Program Utility"],a:0},
+  {q:"How many bits are in a byte?",o:["4","8","16","32"],a:1},
 ];
 
-let current=0,score=0,timer,timeLeft;
+let cur=0, score=0, timer, timeLeft, shuffled=[];
 
 function startQuiz(){
-  current=0;score=0;
+  cur=0; score=0;
+  shuffled=Qs.map((q,i)=>i).sort(()=>Math.random()-0.5).slice(0,10);
   document.getElementById('startScreen').style.display='none';
+  document.getElementById('resultScreen').style.display='none';
   document.getElementById('quizScreen').style.display='block';
-  document.getElementById('result').style.display='none';
-  showQuestion();
+  showQ();
 }
 
-function showQuestion(){
-  const q=questions[current];
-  document.getElementById('progressFill').style.width=((current/questions.length)*100)+'%';
-  document.getElementById('qNum').textContent=`Question ${current+1}/${questions.length}`;
+function showQ(){
+  clearInterval(timer);
+  timeLeft=15;
+  const q=Qs[shuffled[cur]];
+  document.getElementById('qCount').textContent=`${cur+1} / 10`;
+  document.getElementById('progressFill').style.width=`${(cur/10)*100}%`;
   document.getElementById('question').textContent=q.q;
   document.getElementById('nextBtn').style.display='none';
+  document.getElementById('timer').className='timer';
+  document.getElementById('timer').textContent='15s';
   const opts=document.getElementById('options');
-  opts.innerHTML=q.opts.map((o,i)=>`<button class="option" onclick="selectAnswer(${i},this)">${o}</button>`).join('');
-  startTimer();
-}
-
-function startTimer(){
-  timeLeft=15;
-  document.getElementById('timer').textContent='⏱ '+timeLeft+'s';
-  clearInterval(timer);
+  const order=[0,1,2,3].sort(()=>Math.random()-0.5);
+  opts.innerHTML=order.map(i=>`<button class="option" onclick="pick(${i},this)">${q.o[i]}</button>`).join('');
   timer=setInterval(()=>{
     timeLeft--;
-    document.getElementById('timer').textContent='⏱ '+timeLeft+'s';
-    if(timeLeft<=0){clearInterval(timer);revealAnswer(-1);}
+    document.getElementById('timer').textContent=timeLeft+'s';
+    if(timeLeft<=5) document.getElementById('timer').className='timer urgent';
+    if(timeLeft<=0){ clearInterval(timer); reveal(-1); }
   },1000);
 }
 
-function selectAnswer(idx,btn){
+function pick(idx,btn){
   clearInterval(timer);
-  revealAnswer(idx);
+  reveal(idx);
 }
 
-function revealAnswer(idx){
-  const q=questions[current];
-  const btns=document.querySelectorAll('.option');
-  btns.forEach((b,i)=>{
+function reveal(idx){
+  const q=Qs[shuffled[cur]];
+  document.querySelectorAll('.option').forEach((b,i)=>{
+    const val=parseInt(b.getAttribute('onclick').match(/\d+/)[0]);
     b.disabled=true;
-    if(i===q.ans)b.classList.add('correct');
-    else if(i===idx)b.classList.add('wrong');
+    if(val===q.a) b.classList.add('correct');
+    else if(val===idx) b.classList.add('wrong');
   });
-  if(idx===q.ans)score++;
-  document.getElementById('nextBtn').style.display='block';
+  if(idx===q.a) score++;
+  document.getElementById('nextBtn').style.display='inline-block';
 }
 
-function nextQuestion(){
-  current++;
-  if(current>=questions.length){showResult();}
-  else showQuestion();
+function nextQ(){
+  cur++;
+  if(cur>=10) showResult();
+  else showQ();
 }
 
 function showResult(){
-  document.getElementById('progressFill').style.width='100%';
-  document.getElementById('options').innerHTML='';
-  document.getElementById('question').textContent='';
-  document.getElementById('qNum').textContent='Done!';
-  document.getElementById('timer').textContent='';
-  document.getElementById('nextBtn').style.display='none';
-  const r=document.getElementById('result');
+  document.getElementById('quizScreen').style.display='none';
+  const r=document.getElementById('resultScreen');
   r.style.display='block';
-  document.getElementById('scoreDisplay').textContent=score+'/'+questions.length;
-  const pct=(score/questions.length)*100;
-  document.getElementById('scoreMsg').textContent=pct>=80?'🏆 Excellent work!':pct>=60?'👍 Good job!':'📚 Keep practicing!';
+  document.getElementById('resultScore').textContent=score;
+  const pct=(score/10)*100;
+  document.getElementById('resultMsg').textContent=pct>=80?'Excellent.':pct>=60?'Not bad.':'Keep studying.';
 }
 </script>
 </body>
